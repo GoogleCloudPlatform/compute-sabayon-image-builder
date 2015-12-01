@@ -68,7 +68,6 @@ sd_enable NetworkManager-wait-online
 
 echo "Installing kernel and bootloader..."
 equo install linux-sabayon syslinux
-
 echo "Configuring kernel..."
 eselect bzimage set 1
 
@@ -87,11 +86,6 @@ rm google-cloud-sdk.tar.gz
 popd
 
 
-echo "Cleaning temporary data..."
-rm -rf /var/lib/entropy/client/database/*/{sabayonlinux.org,sabayon-weekly,sabayon-limbo}
-rm -rf /var/lib/entropy/client/packages
-rm -rf /var/tmp/{entropy,portage}
-
 echo "Configuring systemd..."
 echo "ForwardToConsole=yes" >> /etc/systemd/journald.conf
 
@@ -109,8 +103,14 @@ sd_disable alsa-restore
 sd_disable alsa-state
 
 echo "Configuring sshd..."
+equo install openssh
 sd_enable sshd
 echo "GOOGLE" > /etc/ssh/sshd_not_to_be_run
+
+echo "Cleaning temporary data..."
+rm -rf /var/lib/entropy/client/database/*/{sabayonlinux.org,sabayon-weekly,sabayon-limbo}
+rm -rf /var/lib/entropy/client/packages
+rm -rf /var/tmp/{entropy,portage}
 
 echo "Configuring /etc/hosts..."
 echo "169.254.169.254 metadata.google.internal metadata" >> /etc/hosts
