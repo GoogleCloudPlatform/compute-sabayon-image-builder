@@ -15,7 +15,7 @@
 
 DOWNLOAD_URL="http://dl.sabayon.org/iso/monthly"
 
-TAR_FILE_TEMPLATE="Sabayon_Linux_-v-_amd64_SpinBase_tarball.tar.gz"
+TAR_FILE_TEMPLATE="Sabayon_Linux_-v-_amd64_tarball.tar.gz"
 LATEST_FILE="LATEST_IS"
 
 SCRIPT_DIR="${PWD}"
