@@ -62,9 +62,12 @@ sd_enable google-startup-scripts
 sd_enable google
 
 echo "Installing NetworkManager..."
-equo install net-misc/networkmanager
+equo install net-misc/networkmanager sys-apps/ethtool
 sd_enable NetworkManager
 sd_enable NetworkManager-wait-online
+
+echo "Installing misc tools..."
+equo install sudo top htop nano psutils procps
 
 echo "Installing kernel and bootloader..."
 equo install linux-sabayon syslinux
@@ -84,7 +87,6 @@ rm google-cloud-sdk.tar.gz
     --rc-path="${cloud_bashrc}" --bash-completion=true \
     --disable-installation-options --path-update=true
 popd
-
 
 echo "Configuring systemd..."
 echo "ForwardToConsole=yes" >> /etc/systemd/journald.conf
@@ -124,7 +126,13 @@ rm -f /run/entropy/entropy.lock
 rm -rf /var/log/entropy /var/lib/entropy/logs
 
 echo "Configuring users..."
-passwd -d root  # disable root password, only ssh allowed
+usermod -L root  # disable root password, only ssh allowed
+
+echo "Configuring fonts..."
+echo > /etc/vconsole.conf
+
+echo "Configuring consoles..."
+sd_enable serial-getty@ttyS0
 
 echo "Configuring fstab..."
 echo "# GCE setup script.
@@ -136,6 +144,9 @@ devpts    /dev/pts   devpts   gid=5,mode=620   0 0
 echo "Configuring bootloader..."
 mkdir -p /boot/extlinux
 ln -sf extlinux /boot/syslinux
+# Notes:
+# - net.ifnames=0 is used to disable predictable network interface names
+#   also see http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames
 cat > /boot/syslinux/syslinux.cfg <<EOF
 PROMPT 1
 TIMEOUT 20
@@ -143,7 +154,7 @@ DEFAULT sabayon
 
 LABEL sabayon
   linux /boot/bzImage
-  append root=LABEL=/ vga=normal nomodeset dovirtio panic=10
+  append root=LABEL=/ vga=normal nomodeset dovirtio panic=10 console=tty0 console=ttyS0 net.ifnames=0
   initrd /boot/Initrd
 EOF
 ln -sf syslinux.cfg /boot/syslinux/extlinux.conf
